@@ -3,6 +3,7 @@
 
 set -ex
 
+SETUP_DIR=`pwd`
 source ./env.sh
 
 
@@ -26,7 +27,7 @@ sudo nginx -s reload
 # Installing and configuring Mysql
 sudo apt-get -y install mysql-server
 sudo -i -u root mysql -uroot -p${MYSQL_PASSWORD} --execute="CREATE DATABASE IF NOT EXISTS onlyoffice;"
-sudo -i -u root mysql -uroot -p${MYSQL_PASSWORD} --execute="CREATE USER 'onlyoffice'@'%' IDENTIFIED BY 'onlyoffice';"
+sudo -i -u root mysql -uroot -p${MYSQL_PASSWORD} --execute="CREATE USER IF NOT EXISTS 'onlyoffice'@'%' IDENTIFIED BY 'onlyoffice';"
 sudo -i -u root mysql -uroot -p${MYSQL_PASSWORD} onlyoffice --execute="GRANT ALL privileges ON onlyoffice TO 'onlyoffice'@'%' IDENTIFIED BY 'onlyoffice';"
 sudo -i -u root mysql -uroot -p${MYSQL_PASSWORD} onlyoffice --execute="FLUSH PRIVILEGES;"
 sudo -i -u root mysql -uroot -p${MYSQL_PASSWORD} onlyoffice < ${INSTALL_DIR}/documentserver/server/schema/mysql/createdb.sql
@@ -38,7 +39,7 @@ sudo apt-get -y install rabbitmq-server
 
 # config fonts
 cd ${INSTALL_DIR}/documentserver/
-mkdir fonts
+mkdir -p fonts
 LD_LIBRARY_PATH=${PWD}/server/FileConverter/bin server/tools/allfontsgen \
   --input="${PWD}/core-fonts" \
   --allfonts-web="${PWD}/sdkjs/common/AllFonts.js" \
@@ -63,5 +64,7 @@ sudo apt-get install -y supervisor
 
 # Install bash scripts
 sudo apt-get -y install rsync
-rsync -avzrl --delete ./run/ ${RUN_DIR}/
-cp -f env.sh ${RUN_DIR}/
+
+rsync -avzrl --delete ${SETUP_DIR}/run/ ${RUN_DIR}/
+cp -f ${SETUP_DIR}/env.sh ${RUN_DIR}/
+chmod 777 ${RUN_DIR}/*.sh

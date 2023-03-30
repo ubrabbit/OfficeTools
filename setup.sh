@@ -6,6 +6,8 @@ set -ex
 SETUP_DIR=`pwd`
 source ./env.sh
 
+# ubuntu 22.04 参考这里改mysql密码
+# https://dademiao.cn/doc/51
 
 # Install NGINX
 sudo apt-get -y install nginx
@@ -28,7 +30,7 @@ sudo nginx -s reload
 sudo apt-get -y install mysql-server
 sudo -i -u root mysql -uroot -p${MYSQL_PASSWORD} --execute="CREATE DATABASE IF NOT EXISTS onlyoffice;"
 sudo -i -u root mysql -uroot -p${MYSQL_PASSWORD} --execute="CREATE USER IF NOT EXISTS 'onlyoffice'@'%' IDENTIFIED BY 'onlyoffice';"
-sudo -i -u root mysql -uroot -p${MYSQL_PASSWORD} onlyoffice --execute="GRANT ALL privileges ON onlyoffice TO 'onlyoffice'@'%' IDENTIFIED BY 'onlyoffice';"
+sudo -i -u root mysql -uroot -p${MYSQL_PASSWORD} onlyoffice --execute="GRANT ALL privileges ON onlyoffice TO 'onlyoffice'@'%';"
 sudo -i -u root mysql -uroot -p${MYSQL_PASSWORD} onlyoffice --execute="FLUSH PRIVILEGES;"
 sudo -i -u root mysql -uroot -p${MYSQL_PASSWORD} onlyoffice < ${INSTALL_DIR}/documentserver/server/schema/mysql/createdb.sql
 

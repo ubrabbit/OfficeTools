@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# 需要确保 /usr/bin/python 是python2
+
 set -ex
 
 source ./env.sh

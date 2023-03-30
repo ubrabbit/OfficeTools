@@ -70,3 +70,7 @@ sudo apt-get -y install rsync
 rsync -avzrl --delete ${SETUP_DIR}/run/ ${RUN_DIR}/
 cp -f ${SETUP_DIR}/env.sh ${RUN_DIR}/
 chmod 777 ${RUN_DIR}/*.sh
+
+rsync -avzrl --delete ${HOME}/onlyoffice/OfficeDocumentServer/python_example/ ${RUN_DIR}/python_example/
+cd ${RUN_DIR}/python_example/
+chmod 777 ${RUN_DIR}/*.sh

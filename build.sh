@@ -7,7 +7,7 @@ set -ex
 source ./env.sh
 
 cd ${PARENT_DIR}/build_tools/tools/linux
-./automate.py server
+./automate.py
 cd -
 
 mkdir -p ${INSTALL_DIR}

@@ -29,7 +29,7 @@ function stop() {
           cat $PIDFILE | xargs -I{} kill {}
       fi
   fi
-  ps -ef | grep "documentserver" | grep -v "grep" | awk '{print $2}' | xargs -I {} kill -9 {}
+  ps -ef | grep documentserver | awk '{print $2}' | xargs -I{} sudo kill -9 {}
   echo "stop success"
 }
 

@@ -11,16 +11,11 @@ source ./env.sh
 
 # Install NGINX
 sudo apt-get -y install nginx
+sudo groupadd nginx
+sudo useradd -d /home/nginx -g nginx -m nginx
+
 # Disable the default website
 sudo rm -f /etc/nginx/sites-enabled/default
-
-# set up the new website. To do that create the /etc/nginx/sites-available/onlyoffice-documentserver
-mkdir -p /etc/nginx/sites-available
-sudo cp -f ${PWD}/conf/onlyoffice-documentserver.nginx /etc/nginx/sites-available/onlyoffice-documentserver
-if [ ! -e /etc/nginx/sites-enabled/onlyoffice-documentserver ]; then
-  sudo ln -s /etc/nginx/sites-available/onlyoffice-documentserver /etc/nginx/sites-enabled/onlyoffice-documentserver
-fi
-
 
 # restart NGINX to apply the changes
 sudo nginx -s reload
@@ -29,11 +24,18 @@ sudo nginx -s reload
 # Installing and configuring Mysql
 sudo apt-get -y install mysql-server
 sudo -i -u root mysql -uroot -p${MYSQL_PASSWORD} --execute="CREATE DATABASE IF NOT EXISTS onlyoffice;"
-sudo -i -u root mysql -uroot -p${MYSQL_PASSWORD} --execute="CREATE USER IF NOT EXISTS 'onlyoffice'@'%' IDENTIFIED BY 'onlyoffice';"
-sudo -i -u root mysql -uroot -p${MYSQL_PASSWORD} onlyoffice --execute="GRANT ALL privileges ON onlyoffice TO 'onlyoffice'@'%';"
+sudo -i -u root mysql -uroot -p${MYSQL_PASSWORD} --execute="CREATE USER IF NOT EXISTS 'onlyoffice'@'localhost' IDENTIFIED BY 'onlyoffice';"
+sudo -i -u root mysql -uroot -p${MYSQL_PASSWORD} onlyoffice --execute="GRANT ALL privileges ON onlyoffice TO 'onlyoffice'@'localhost';"
 sudo -i -u root mysql -uroot -p${MYSQL_PASSWORD} onlyoffice --execute="FLUSH PRIVILEGES;"
 sudo -i -u root mysql -uroot -p${MYSQL_PASSWORD} onlyoffice < ${INSTALL_DIR}/documentserver/server/schema/mysql/createdb.sql
 
+#mysql-8
+#ALTER USER 'onlyoffice'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_PASSWORD}';
+#ALTER USER 'onlyoffice'@'%' IDENTIFIED WITH mysql_native_password BY '${MYSQL_PASSWORD}';
+#GRANT ALL PRIVILEGES ON *.* TO `onlyoffice`@`localhost` WITH GRANT OPTION;
+#GRANT ALL PRIVILEGES ON `onlyoffice`.`task_result` TO `onlyoffice`@`localhost`;
+#GRANT ALL PRIVILEGES ON `onlyoffice`.`doc_changes` TO `onlyoffice`@`localhost`;
+#FLUSH PRIVILEGES;
 
 # Installing RabbitMQ
 sudo apt-get -y install rabbitmq-server
@@ -74,3 +76,12 @@ chmod 777 ${RUN_DIR}/*.sh
 rsync -avzrl --delete ${HOME}/onlyoffice/OfficeDocumentServer/python_example/ ${RUN_DIR}/python_example/
 cd ${RUN_DIR}/python_example/
 chmod 777 ${RUN_DIR}/*.sh
+
+# 同步运行文件
+mkdir -p /var/www/onlyoffice/documentserver/
+sudo rsync -avzrl --delete ${HOME}/onlyoffice/OfficeDocumentServer/www/ /var/www/onlyoffice/documentserver/
+#groupadd ds && useradd ds -g ds 2>&1 >/dev/null
+sudo chown -R ds:ds /var/www/onlyoffice/documentserver/
+
+sudo rsync -avzrl --delete ${HOME}/onlyoffice/OfficeDocumentServer/www/conf/nginx/ /etc/nginx/
+sudo rsync -avzrl --delete ${HOME}/onlyoffice/OfficeDocumentServer/www/conf/onlyoffice/ /etc/onlyoffice/
